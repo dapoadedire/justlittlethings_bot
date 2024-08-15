@@ -7,11 +7,19 @@ import (
 	"strconv"
 	"strings"
 	"time"
+    "os"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 func sendMediaGroup(bot *tgbotapi.BotAPI, chatID int64, imageURL string) {
+	dir, err := os.Getwd()
+	if err != nil {
+		log.Printf("Error getting current working directory: %v", err)
+		return
+	}
+	log.Println("Current working directory:", dir)
+
 	photo := tgbotapi.NewInputMediaPhoto(tgbotapi.FilePath(imageURL))
 	mediaGroup := tgbotapi.NewMediaGroup(chatID, []interface{}{photo})
 
@@ -32,6 +40,7 @@ func getRandomImage() string {
 }
 
 func main() {
+
 	botToken := "7222244368:AAHXkIyEO2wNH6pZrNtkSZFREjb3_PUHRFM"
 	// botToken := "6999330751:AAEGx91n9_sPFBRxa8K1DXEgVfvuF6YXUXs"
 
