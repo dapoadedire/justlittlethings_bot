@@ -32,7 +32,7 @@ func getRandomImage() string {
 }
 
 func main() {
-    botToken := "7222244368:AAGEINzLHL6I2rb_dIaLHhb23ONzTKxb_Ng"
+    botToken := "7222244368:AAHXkIyEO2wNH6pZrNtkSZFREjb3_PUHRFM"
     // botToken := "6999330751:AAEGx91n9_sPFBRxa8K1DXEgVfvuF6YXUXs"
 
     bot, err := tgbotapi.NewBotAPI(botToken)
