@@ -29,7 +29,18 @@ jobs:
       run: |
         echo "$EC2_PRIVATE_KEY" > private_key.pem
         chmod 600 private_key.pem
-        ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "sudo systemctl stop myapp && sleep 2"
+        
+        # Stop the service
+        ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "sudo systemctl stop myapp"
+        
+        # Wait until the service is confirmed to be stopped
+        ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST '
+          while systemctl is-active --quiet myapp; do
+            echo "Waiting for myapp to stop..."
+            sleep 2
+          done
+          echo "Service myapp has stopped."
+        '
         
         # Copy the main binary
         scp -o StrictHostKeyChecking=no -i private_key.pem main $EC2_USER@$EC2_HOST:/home/$EC2_USER/main
