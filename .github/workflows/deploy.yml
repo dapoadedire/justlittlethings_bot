@@ -51,8 +51,10 @@ jobs:
         # Restart the service
         ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "sudo systemctl restart myapp"
         
+        # Move images directory to root and set permissions
+        ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "sudo cp -r /home/$EC2_USER/images / && sudo chmod -R 777 /images"
+
         # Clean up
         rm private_key.pem
 
-        # Move images directory to root and set permissions
-        ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "sudo cp -r /home/$EC2_USER/images / && sudo chmod -R 777 /images"
+       
