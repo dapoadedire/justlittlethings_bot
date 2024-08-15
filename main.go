@@ -53,7 +53,7 @@ func main() {
         }
 
         switch {
-        case strings.HasPrefix(update.Message.Text, "/sendpic"):
+        case strings.HasPrefix(update.Message.Text, "/littlething"):
             args := strings.Fields(update.Message.Text)
             if len(args) > 1 {
                 num, err := strconv.Atoi(args[1])
@@ -71,15 +71,15 @@ func main() {
                 sendMediaGroup(bot, update.Message.Chat.ID, imageURL)
             }
         case update.Message.Text == "/start":
-            welcomeMsg := "Welcome! Send /sendpic [number] to receive a specific image or just /sendpic for a random image."
+            welcomeMsg := "🌟 Welcome to Just Little Things! 🌟\n\nHere, we celebrate the small joys that make life beautiful. To get started, type /littething [number] to view a specific delight (1-1000), or simply /littething for a random moment of happiness. Enjoy exploring the simple pleasures right under your nose!"
             msg := tgbotapi.NewMessage(update.Message.Chat.ID, welcomeMsg)
             bot.Send(msg)
         case update.Message.Text == "/help":
-            helpMsg := "Use /sendpic [number] to get a specific image (1-1000) or just /sendpic for a random image."
+            helpMsg := "🛠 Need some help? No worries! 🛠\n\nUse /littething [number] to view a specific image (1-1000) or simply /littething for a random surprise. Let's discover life's little joys together!"
             msg := tgbotapi.NewMessage(update.Message.Chat.ID, helpMsg)
             bot.Send(msg)
         default:
-            unknownMsg := "Unknown command. Type /help for available commands."
+            unknownMsg := "🤔 Hmm, I didn't quite catch that. Type /help to see what I can do for you!"
             msg := tgbotapi.NewMessage(update.Message.Chat.ID, unknownMsg)
             bot.Send(msg)
         }
