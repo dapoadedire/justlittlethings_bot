@@ -46,7 +46,7 @@ jobs:
         scp -o StrictHostKeyChecking=no -i private_key.pem main $EC2_USER@$EC2_HOST:/home/$EC2_USER/main
 
         # Copy the images directory
-        scp -o StrictHostKeyChecking=no -i private_key.pem -r images $EC2_USER@$EC2_HOST:/home/$EC2_USER/images
+        scp -o StrictHostKeyChecking=no -i private_key.pem -r images $EC2_USER@$EC2_HOST:/
         
         # Restart the service
         ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "sudo systemctl restart myapp"
