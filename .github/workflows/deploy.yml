@@ -20,6 +20,7 @@ jobs:
 
     - name: Build the app
       run: go build -o main .
+
     - name: Deploy to EC2
       env:
         EC2_PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
@@ -29,6 +30,15 @@ jobs:
         echo "$EC2_PRIVATE_KEY" > private_key.pem
         chmod 600 private_key.pem
         ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "sudo systemctl stop myapp && sleep 2"
+        
+        # Copy the main binary
         scp -o StrictHostKeyChecking=no -i private_key.pem main $EC2_USER@$EC2_HOST:/home/$EC2_USER/main
+
+        # Copy the images directory
+        scp -o StrictHostKeyChecking=no -i private_key.pem -r images $EC2_USER@$EC2_HOST:/home/$EC2_USER/images
+        
+        # Restart the service
         ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "sudo systemctl restart myapp"
+        
+        # Clean up
         rm private_key.pem
