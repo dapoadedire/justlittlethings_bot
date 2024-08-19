@@ -26,6 +26,8 @@ jobs:
         EC2_PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
         EC2_HOST: ${{ secrets.EC2_HOST }}
         EC2_USER: ${{ secrets.EC2_USER }}
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        API_BOT_TOKEN: ${{ secrets.API_BOT_TOKEN }}
       run: |
         echo "$EC2_PRIVATE_KEY" > private_key.pem
         chmod 600 private_key.pem
@@ -48,6 +50,14 @@ jobs:
         # Copy the images directory
         scp -o StrictHostKeyChecking=no -i private_key.pem -r images $EC2_USER@$EC2_HOST:/home/$EC2_USER/images
         
+        # Create a .env file on the EC2 instance and move it to the root directory
+        ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "
+          echo 'TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}' > /home/$EC2_USER/.env &&
+          echo 'API_BOT_TOKEN=${API_BOT_TOKEN}' >> /home/$EC2_USER/.env &&
+          sudo mv /home/$EC2_USER/.env /.env &&
+          sudo chmod 600 /.env
+        "
+
         # Restart the service
         ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "sudo systemctl restart myapp"
         
@@ -56,5 +66,3 @@ jobs:
 
         # Clean up
         rm private_key.pem
-
-       
