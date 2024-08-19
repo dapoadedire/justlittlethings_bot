@@ -54,8 +54,7 @@ jobs:
         ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "
           echo 'TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}' > /home/$EC2_USER/.env &&
           echo 'API_BOT_TOKEN=${API_BOT_TOKEN}' >> /home/$EC2_USER/.env &&
-          sudo mv /home/$EC2_USER/.env /.env &&
-          sudo chmod 600 /.env
+          sudo chmod 777 /home/$EC2_USER/.env &&
         "
 
         # Restart the service
