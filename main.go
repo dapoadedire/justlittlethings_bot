@@ -4,22 +4,25 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"net/http"
+	"net/url"
+	"os"
 	"strconv"
 	"strings"
 	"time"
-    "os"
-
+	"github.com/joho/godotenv"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func sendMediaGroup(bot *tgbotapi.BotAPI, chatID int64, imageURL string) {
-	dir, err := os.Getwd()
-	if err != nil {
-		log.Printf("Error getting current working directory: %v", err)
-		return
-	}
-	log.Println("Current working directory:", dir)
 
+func init() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading .env file: %v", err)
+	}
+}
+
+func sendMediaGroup(bot *tgbotapi.BotAPI, chatID int64, imageURL string) {
 	photo := tgbotapi.NewInputMediaPhoto(tgbotapi.FilePath(imageURL))
 	mediaGroup := tgbotapi.NewMediaGroup(chatID, []interface{}{photo})
 
@@ -39,10 +42,32 @@ func getRandomImage() string {
 	return fmt.Sprintf("images/%03d.png", randomNumber)
 }
 
+// Notify the second bot about the user interaction
+func notifyUsage(userID int64, username string, command string) {
+	YOUR_PERSONAL_CHAT_ID := int64(1481063483)
+	apiToken := os.Getenv("API_BOT_TOKEN")
+	if apiToken == "" {
+		log.Fatal("API_BOT_TOKEN environment variable is required")
+	}
+	apiURL := fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", apiToken)
+	messageText := fmt.Sprintf("User @%s (%d) used command: %s", username, userID, command)
+	data := url.Values{
+		"chat_id": {strconv.FormatInt(YOUR_PERSONAL_CHAT_ID, 10)},
+		"text":    {messageText},
+	}
+	_, err := http.PostForm(apiURL, data)
+	if err != nil {
+		log.Printf("Error notifying usage: %v", err)
+	}
+}
+
 func main() {
 
-	botToken := "7222244368:AAHXkIyEO2wNH6pZrNtkSZFREjb3_PUHRFM"
-	// botToken := "6999330751:AAEGx91n9_sPFBRxa8K1DXEgVfvuF6YXUXs"
+
+	botToken := os.Getenv("TELEGRAM_BOT_TOKEN")
+	if botToken == "" {
+		log.Fatal("TELEGRAM_BOT_TOKEN environment variable is required")
+	}
 
 	bot, err := tgbotapi.NewBotAPI(botToken)
 	if err != nil {
@@ -65,11 +90,18 @@ func main() {
 			continue
 		}
 
+		userID := update.Message.From.ID
+		username := update.Message.From.UserName
+
+		// Use a goroutine to run notifyUsage concurrently
+		go notifyUsage(userID, username, update.Message.Text)
+
 		switch {
 		case strings.HasPrefix(update.Message.Text, "/start"):
 			welcomeMsg := "🌟 Welcome to Just Little Things! 🌟\n\nHere, we celebrate the small joys that make life beautiful. Use the following commands:\n\n/littlething - Get a random image\n/littlething [number] - Get a specific image (1-1000)\n/discoverjoy - Another way to get a random image\n/help - See available commands\n\nEnjoy exploring the simple pleasures!"
 			msg := tgbotapi.NewMessage(update.Message.Chat.ID, welcomeMsg)
 			bot.Send(msg)
+
 		case strings.HasPrefix(update.Message.Text, "/littlething"):
 			args := strings.Fields(update.Message.Text)
 			if len(args) > 1 {
