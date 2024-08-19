@@ -20,7 +20,6 @@ jobs:
 
     - name: Build the app
       run: go build -o main .
-
     - name: Deploy to EC2
       env:
         EC2_PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
@@ -46,7 +45,7 @@ jobs:
         
         # Copy the main binary
         scp -o StrictHostKeyChecking=no -i private_key.pem main $EC2_USER@$EC2_HOST:/home/$EC2_USER/main
-
+    
         # Copy the images directory
         scp -o StrictHostKeyChecking=no -i private_key.pem -r images $EC2_USER@$EC2_HOST:/home/$EC2_USER/images
         
@@ -54,14 +53,14 @@ jobs:
         ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "
           echo 'TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}' > /home/$EC2_USER/.env &&
           echo 'API_BOT_TOKEN=${API_BOT_TOKEN}' >> /home/$EC2_USER/.env &&
-          sudo chmod 777 /home/$EC2_USER/.env &&
+          sudo chmod 777 /home/$EC2_USER/.env
         "
-
+    
         # Restart the service
         ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "sudo systemctl restart myapp"
         
         # Move images directory to root and set permissions
         ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "sudo cp -r /home/$EC2_USER/images / && sudo chmod -R 777 /images"
-
+    
         # Clean up
         rm private_key.pem
