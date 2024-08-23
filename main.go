@@ -44,18 +44,25 @@ func getRandomImage() string {
 
 // Notify the second bot about the user interaction
 func notifyUsage(userID int64, username string, command string) {
-	YOUR_PERSONAL_CHAT_ID := int64(1481063483)
+	YOUR_PERSONAL_CHAT_ID_STRING := os.Getenv("YOUR_PERSONAL_CHAT_ID")
+	YOUR_PERSONAL_CHAT_ID, err := strconv.ParseInt(YOUR_PERSONAL_CHAT_ID_STRING, 10, 64)
+	if err != nil {
+		log.Fatalf("Error parsing YOUR_PERSONAL_CHAT_ID: %v", err)
+	}
+
 	apiToken := os.Getenv("API_BOT_TOKEN")
 	if apiToken == "" {
 		log.Fatal("API_BOT_TOKEN environment variable is required")
 	}
+
 	apiURL := fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", apiToken)
 	messageText := fmt.Sprintf("User @%s (%d) used command: %s", username, userID, command)
 	data := url.Values{
 		"chat_id": {strconv.FormatInt(YOUR_PERSONAL_CHAT_ID, 10)},
 		"text":    {messageText},
 	}
-	_, err := http.PostForm(apiURL, data)
+
+	_, err = http.PostForm(apiURL, data)
 	if err != nil {
 		log.Printf("Error notifying usage: %v", err)
 	}
