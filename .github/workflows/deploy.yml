@@ -27,6 +27,7 @@ jobs:
         EC2_USER: ${{ secrets.EC2_USER }}
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         API_BOT_TOKEN: ${{ secrets.API_BOT_TOKEN }}
+        YOUR_PERSONAL_CHAT_ID: ${{ secrets.YOUR_PERSONAL_CHAT_ID }}
       run: |
         echo "$EC2_PRIVATE_KEY" > private_key.pem
         chmod 600 private_key.pem
