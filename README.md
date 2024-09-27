@@ -1,10 +1,10 @@
 # [Just Little Things Bot](https://t.me/just_little_things_bot)
+
 [https://t.me/just_little_things_bot](https://t.me/just_little_things_bot)
 
 A Telegram bot that celebrates the small joys in life by sharing random or specific images.
 
 ![telegram-cloud-photo-size-4-5906806507612259776-x](https://github.com/user-attachments/assets/6c9bda45-21af-44df-8901-05a2a0f47ba3)
-
 
 ## Description
 
