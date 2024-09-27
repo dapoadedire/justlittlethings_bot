@@ -20,6 +20,7 @@ jobs:
 
     - name: Build the app
       run: go build -o main .
+
     - name: Deploy to EC2
       env:
         EC2_PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
@@ -32,37 +33,40 @@ jobs:
         echo "$EC2_PRIVATE_KEY" > private_key.pem
         chmod 600 private_key.pem
         
+        # Create app directory if it doesn't exist
+        ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "mkdir -p /home/$EC2_USER/apps/justlittlethings"
+        
         # Stop the service
-        ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "sudo systemctl stop myapp"
+        ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "sudo systemctl stop justlittlethingsbot"
         
         # Wait until the service is confirmed to be stopped
         ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST '
-          while systemctl is-active --quiet myapp; do
-            echo "Waiting for myapp to stop..."
+          while systemctl is-active --quiet justlittlethingsbot; do
+            echo "Waiting for justlittlethingsbot to stop..."
             sleep 2
           done
-          echo "Service myapp has stopped."
+          echo "Service justlittlethingsbot has stopped."
         '
         
         # Copy the main binary
-        scp -o StrictHostKeyChecking=no -i private_key.pem main $EC2_USER@$EC2_HOST:/home/$EC2_USER/main
+        scp -o StrictHostKeyChecking=no -i private_key.pem main $EC2_USER@$EC2_HOST:/home/$EC2_USER/apps/justlittlethings/main
     
         # Copy the images directory
-        scp -o StrictHostKeyChecking=no -i private_key.pem -r images $EC2_USER@$EC2_HOST:/home/$EC2_USER/images
+        scp -o StrictHostKeyChecking=no -i private_key.pem -r images $EC2_USER@$EC2_HOST:/home/$EC2_USER/apps/justlittlethings/images
         
-        # Create a .env file on the EC2 instance and move it to the root directory
+        # Create a .env file on the EC2 instance
         ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "
-          echo 'TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}' > /home/$EC2_USER/.env &&
-          echo 'API_BOT_TOKEN=${API_BOT_TOKEN}' >> /home/$EC2_USER/.env &&
-          echo 'YOUR_PERSONAL_CHAT_ID=${YOUR_PERSONAL_CHAT_ID}' >> /home/$EC2_USER/.env &&
-          sudo chmod 777 /home/$EC2_USER/.env
+          echo 'TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}' > /home/$EC2_USER/apps/justlittlethings/.env &&
+          echo 'API_BOT_TOKEN=${API_BOT_TOKEN}' >> /home/$EC2_USER/apps/justlittlethings/.env &&
+          echo 'YOUR_PERSONAL_CHAT_ID=${YOUR_PERSONAL_CHAT_ID}' >> /home/$EC2_USER/apps/justlittlethings/.env &&
+          sudo chmod 600 /home/$EC2_USER/apps/justlittlethings/.env
         "
     
         # Restart the service
-        ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "sudo systemctl restart myapp"
+        ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "sudo systemctl restart justlittlethingsbot"
         
-        # Move images directory to root and set permissions
-        ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "sudo cp -r /home/$EC2_USER/images / && sudo chmod -R 777 /images"
+        # Set permissions for the app directory
+        ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "sudo chown -R $EC2_USER:$EC2_USER /home/$EC2_USER/apps/justlittlethings && sudo chmod -R 755 /home/$EC2_USER/apps/justlittlethings"
     
         # Clean up
         rm private_key.pem
