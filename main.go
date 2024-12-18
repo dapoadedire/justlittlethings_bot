@@ -123,9 +123,23 @@ func main() {
 			}
 
 		case update.Message.Text == "/littlethings":
-			num := rand.Intn(5) + 3
+			num := rand.Intn(5) + 3     
+			mediaGroup := []interface{}{} 
+
 			for i := 0; i < num; i++ {
-				sendMediaGroup(bot, update.Message.Chat.ID, getRandomImage())
+				imageURL := getRandomImage()
+				photo := tgbotapi.NewInputMediaPhoto(tgbotapi.FilePath(imageURL))
+				mediaGroup = append(mediaGroup, photo)
+			}
+
+			messages, err := bot.SendMediaGroup(tgbotapi.NewMediaGroup(update.Message.Chat.ID, mediaGroup))
+			if err != nil {
+				log.Printf("Error sending media group: %v", err)
+				return
+			}
+
+			for _, msg := range messages {
+				log.Printf("Sent message: %v", msg)
 			}
 
 		case update.Message.Text == "/discoverjoy":
