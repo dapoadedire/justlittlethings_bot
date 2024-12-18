@@ -10,10 +10,10 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"github.com/joho/godotenv"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-)
 
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/joho/godotenv"
+)
 
 func init() {
 	err := godotenv.Load()
@@ -70,7 +70,6 @@ func notifyUsage(userID int64, username string, command string) {
 
 func main() {
 
-
 	botToken := os.Getenv("TELEGRAM_BOT_TOKEN")
 	if botToken == "" {
 		log.Fatal("TELEGRAM_BOT_TOKEN environment variable is required")
@@ -120,6 +119,12 @@ func main() {
 					sendMediaGroup(bot, update.Message.Chat.ID, getRandomImage())
 				}
 			} else {
+				sendMediaGroup(bot, update.Message.Chat.ID, getRandomImage())
+			}
+
+		case update.Message.Text == "/littlethings":
+			num := rand.Intn(5) + 3
+			for i := 0; i < num; i++ {
 				sendMediaGroup(bot, update.Message.Chat.ID, getRandomImage())
 			}
 
