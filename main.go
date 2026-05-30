@@ -16,10 +16,7 @@ import (
 )
 
 func init() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
-	}
+	_ = godotenv.Load()
 }
 
 func sendMediaGroup(bot *tgbotapi.BotAPI, chatID int64, imageURL string) {
@@ -88,8 +85,6 @@ func main() {
 	u.Timeout = 60
 
 	updates := bot.GetUpdatesChan(u)
-
-	rand.Seed(time.Now().UnixNano())
 
 	for update := range updates {
 		if update.Message == nil {
